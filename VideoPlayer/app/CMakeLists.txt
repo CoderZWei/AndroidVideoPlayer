@@ -4,6 +4,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/main/cpp/include)
 add_library( # Sets the name of the library.
         native-lib
         SHARED
+        src/main/cpp/src/FfmpegPlayer.cpp
         src/main/cpp/native-lib.cpp)
 
 find_library(
