@@ -25,7 +25,7 @@ public class PlayerWrapper {
     }
 
     public void init(final String path) {
-        mThreadPoolExecutor=new ThreadPoolExecutor(5,5,3,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>(10));
+        mThreadPoolExecutor=new ThreadPoolExecutor(3,3,2,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>(10));
         mThreadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -34,5 +34,15 @@ public class PlayerWrapper {
         });
     }
 
+    public void play(){
+        mThreadPoolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativePlay();
+            }
+        });
+    }
+
     private native void nativeInitPlayer(String path);
+    private native void nativePlay();
 }

@@ -1,6 +1,6 @@
 package com.example.zw.videoplayer;
 
-public class VideoPlayer {
+public class MediaPlayer {
     private PlayerWrapper mPlayerWrapper;
 
     public void initPlayer(String path){
@@ -10,7 +10,9 @@ public class VideoPlayer {
 
 
     public void startPlay(){
-
+        if(mPlayerWrapper!=null){
+            mPlayerWrapper.play();
+        }
     }
     public void pausePlay(){
 

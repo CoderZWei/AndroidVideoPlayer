@@ -5,6 +5,11 @@ add_library( # Sets the name of the library.
         native-lib
         SHARED
         src/main/cpp/src/FfmpegPlayer.cpp
+        src/main/cpp/src/VideoPlayer.cpp
+        src/main/cpp/src/AudioPlayer.cpp
+        src/main/cpp/src/PacketQueue.cpp
+        src/main/cpp/src/PlayStatus.cpp
+        src/main/cpp/src/CallBack.cpp
         src/main/cpp/native-lib.cpp)
 
 find_library(
