@@ -2,6 +2,8 @@ package com.example.zw.videoplayer;
 
 import android.util.Log;
 
+import com.example.zw.videoplayer.opengl.MyGLSurfaceView;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -14,6 +16,7 @@ public class PlayerWrapper {
         System.loadLibrary("native-lib");
     }
     private static PlayerWrapper mPlayerWrapper;
+    private MyGLSurfaceView mGLSurfaceView;
     private ThreadPoolExecutor mThreadPoolExecutor;
     public static PlayerWrapper getInstance(){
         if(mPlayerWrapper==null){
@@ -45,8 +48,15 @@ public class PlayerWrapper {
         });
     }
 
+    public void setGLSurfaceView(MyGLSurfaceView glSurfaceView){
+        this.mGLSurfaceView=glSurfaceView;
+    }
+
     public void onCallRenderYUV(int width,int height,byte[]y,byte[]u,byte[]v){
         Log.d("zw_debug","获取到yuv");
+        if(mGLSurfaceView!=null){
+            mGLSurfaceView.setYUVData(width,height,y,u,v);
+        }
     }
 
     private native void nativeInitPlayer(String path);
