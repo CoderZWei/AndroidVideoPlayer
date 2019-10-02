@@ -16,16 +16,18 @@ extern "C"{
 class FfmpegPlayer{
 public:
     FfmpegPlayer();
-    FfmpegPlayer(PlayStatus *pStatus);
+    FfmpegPlayer(PlayStatus *pStatus,CallBack *callback);
     ~FfmpegPlayer();
     void init(const char *url);
     void startPlay();
     void play();
+    int getCodecContext(AVCodecParameters *codecpar,AVCodecContext **avCodecContext);
 
     const char *url=NULL;
     bool exit= false;
     int duration=0;
     PlayStatus *playStatus=NULL;
+    CallBack *callBack=NULL;
     pthread_mutex_t initMutex;
     AVFormatContext *pFormatCtx=NULL;
     VideoPlayer *videoPlayer=NULL;

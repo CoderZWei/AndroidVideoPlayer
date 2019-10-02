@@ -8,6 +8,20 @@ FfmpegPlayer *ffmpegPlayer = NULL;
 PlayStatus *playStatus = NULL;
 CallBack *callBack = NULL;
 pthread_t threadPlay;
+_JavaVM *javaVM=NULL;
+
+extern "C"
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
+{
+    jint result = -1;
+    javaVM = vm;
+    JNIEnv *env;
+    if(vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK)
+    {
+        return result;
+    }
+    return JNI_VERSION_1_6;
+}
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -16,7 +30,8 @@ Java_com_example_zw_videoplayer_PlayerWrapper_nativeInitPlayer(JNIEnv *env, jobj
     const char *path = env->GetStringUTFChars(path_, 0);
     if (ffmpegPlayer == NULL) {
         playStatus = new PlayStatus();
-        ffmpegPlayer = new FfmpegPlayer(playStatus);
+        callBack=new CallBack(javaVM,env,&instance);
+        ffmpegPlayer = new FfmpegPlayer(playStatus,callBack);
         ffmpegPlayer->init(path);
     }
     env->ReleaseStringUTFChars(path_, path);

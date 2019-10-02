@@ -7,6 +7,7 @@
 AudioPlayer::AudioPlayer(PlayStatus *pStatus) {
     this->playStatus=pStatus;
     this->audioPktQueue=new PacketQueue(playStatus);
+    pthread_mutex_init(&codecMutex,NULL);
 }
 
 

@@ -6,14 +6,19 @@
 #define VIDEOPLAYER_CALLBACK_H
 
 #include "jni.h"
-class CallBack{
+#define MAIN_THREAD 0
+#define CHILD_THREAD 1
+class CallBack {
 public:
-    CallBack(_JavaVM *javaVM,JNIEnv *env,jobject *obj);
+    CallBack(_JavaVM *javaVM, JNIEnv *env, jobject *obj);
     ~CallBack();
+    void onCallRenderYUV(int threadType,int width,int height,uint8_t *fy,uint8_t *fu,uint8_t *fv);
 
-    _JavaVM *javaVM=NULL;
-    JNIEnv *jniEnv=NULL;
+    _JavaVM *javaVM = NULL;
+    JNIEnv *jniEnv = NULL;
     jobject jObj;
+
+    jmethodID jmid_renderYUV;
 
 };
 

@@ -6,16 +6,19 @@
 #define VIDEOPLAYER_VIDEOPLAYER_H
 
 #include "PlayStatus.h"
+#include "CallBack.h"
 #include "AudioPlayer.h"
 #include "PacketQueue.h"
 extern "C"{
 #include "libavcodec/avcodec.h"
 #include "libswresample/swresample.h"
+#include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
 };
 
 class VideoPlayer{
 public:
-    VideoPlayer(PlayStatus *pStatus);
+    VideoPlayer(PlayStatus *pStatus,CallBack *callback);
     ~VideoPlayer();
     void play();
     void pause();
@@ -31,6 +34,7 @@ public:
     AVRational timeBase;
 
     PlayStatus *playStatus=NULL;
+    CallBack *callBack=NULL;
     PacketQueue *videoPktQueue=NULL;
 
 };

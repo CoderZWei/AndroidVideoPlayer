@@ -1,5 +1,7 @@
 package com.example.zw.videoplayer;
 
+import android.util.Log;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -41,6 +43,10 @@ public class PlayerWrapper {
                 nativePlay();
             }
         });
+    }
+
+    public void onCallRenderYUV(int width,int height,byte[]y,byte[]u,byte[]v){
+        Log.d("zw_debug","获取到yuv");
     }
 
     private native void nativeInitPlayer(String path);

@@ -10,7 +10,7 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String VIDEOPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "demo.mov";
+    private static final String VIDEOPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "demo.mp4";
     private MediaPlayer mMediaPlayer;
 
     @Override
