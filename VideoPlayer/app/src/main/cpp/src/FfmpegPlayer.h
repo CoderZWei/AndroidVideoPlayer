@@ -21,6 +21,8 @@ public:
     void init(const char *url);
     void startPlay();
     void play();
+    void pause();
+    void resume();
     int getCodecContext(AVCodecParameters *codecpar,AVCodecContext **avCodecContext);
 
     const char *url=NULL;

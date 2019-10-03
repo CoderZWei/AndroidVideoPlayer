@@ -158,6 +158,24 @@ int FfmpegPlayer::getCodecContext(AVCodecParameters *codecpar, AVCodecContext **
     return 0;
 }
 
+void FfmpegPlayer::pause() {
+    if(playStatus!=NULL){
+        playStatus->setPauseStatus(true);
+    }
+    if(audioPlayer!=NULL){
+        audioPlayer->pause();
+    }
+}
+
+void FfmpegPlayer::resume() {
+    if(playStatus!=NULL){
+        playStatus->setPauseStatus(false);
+    }
+    if(audioPlayer!=NULL){
+        audioPlayer->resume();
+    }
+}
+
 
 
 

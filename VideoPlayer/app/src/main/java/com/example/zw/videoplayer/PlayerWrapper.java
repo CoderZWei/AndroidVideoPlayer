@@ -48,6 +48,24 @@ public class PlayerWrapper {
         });
     }
 
+    public void pause(){
+        mThreadPoolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativePause();
+            }
+        });
+    }
+
+    public void resume() {
+        mThreadPoolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeResume();
+            }
+        });
+    }
+
     public void setGLSurfaceView(MyGLSurfaceView glSurfaceView){
         this.mGLSurfaceView=glSurfaceView;
     }
@@ -61,4 +79,7 @@ public class PlayerWrapper {
 
     private native void nativeInitPlayer(String path);
     private native void nativePlay();
+    private native void nativePause();
+    private native void nativeResume();
+
 }

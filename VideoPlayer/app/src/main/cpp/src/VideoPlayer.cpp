@@ -21,6 +21,10 @@ VideoPlayer::~VideoPlayer() {
 void *playVideo(void* data){
     VideoPlayer *videoPlayer= static_cast<VideoPlayer*>(data);
     while (videoPlayer->playStatus!=NULL && videoPlayer->playStatus->getPlayStatus()){
+        if(videoPlayer->playStatus->getPauseStatus()){//暂停状态
+            av_usleep(1000*100);
+            continue;
+        }
         if(videoPlayer->videoPktQueue->getQueueSize()==0){//正在加载
             av_usleep(1000*100);
             continue;

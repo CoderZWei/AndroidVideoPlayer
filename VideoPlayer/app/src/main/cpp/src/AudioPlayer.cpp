@@ -32,11 +32,15 @@ void AudioPlayer::play() {
 
 
 void AudioPlayer::pause() {
-
+    if(pcmPlayerPlay!=NULL){
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay,SL_PLAYSTATE_PAUSED);
+    }
 }
 
 void AudioPlayer::resume() {
-
+    if(pcmPlayerPlay!=NULL){
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay,SL_PLAYSTATE_PLAYING);
+    }
 }
 
 void AudioPlayer::release() {

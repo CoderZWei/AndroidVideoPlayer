@@ -22,10 +22,14 @@ public class MediaPlayer {
         }
     }
     public void pausePlay(){
-
+        if(mPlayerWrapper!=null){
+            mPlayerWrapper.pause();
+        }
     }
 
     public void resumePlay(){
-
+        if(mPlayerWrapper!=null){
+            mPlayerWrapper.resume();
+        }
     }
 }

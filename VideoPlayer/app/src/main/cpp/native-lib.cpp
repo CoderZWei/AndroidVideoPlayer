@@ -51,3 +51,18 @@ Java_com_example_zw_videoplayer_PlayerWrapper_nativePlay(JNIEnv *env, jobject in
     }
 }
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_zw_videoplayer_PlayerWrapper_nativePause(JNIEnv *env, jobject instance) {
+    if(ffmpegPlayer!=NULL){
+        ffmpegPlayer->pause();
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_zw_videoplayer_PlayerWrapper_nativeResume(JNIEnv *env, jobject instance) {
+    if(ffmpegPlayer!=NULL){
+        ffmpegPlayer->resume();
+    }
+}
