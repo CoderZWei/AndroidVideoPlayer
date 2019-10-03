@@ -62,7 +62,7 @@ void FfmpegPlayer::init(const char *url) {
         } else if (pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             ALOGD("zw_debug:audio stream");
             if (audioPlayer == NULL) {
-                audioPlayer = new AudioPlayer(playStatus);
+                audioPlayer = new AudioPlayer(playStatus,callBack,this->pFormatCtx->streams[i]->codecpar->sample_rate);
                 audioPlayer->streamIndex = i;
                 audioPlayer->codecPar = pFormatCtx->streams[i]->codecpar;
                 audioPlayer->duration = pFormatCtx->duration / AV_TIME_BASE;

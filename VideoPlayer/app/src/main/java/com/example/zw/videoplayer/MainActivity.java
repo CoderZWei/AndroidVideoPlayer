@@ -11,7 +11,7 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String VIDEOPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "demo.mp4";
+    private static final String VIDEOPATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "01.avi";
     private MediaPlayer mMediaPlayer;
     private MyGLSurfaceView mSurfaceView;
     @Override
