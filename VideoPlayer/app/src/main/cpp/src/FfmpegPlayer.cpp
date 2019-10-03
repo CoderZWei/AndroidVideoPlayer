@@ -96,10 +96,10 @@ void FfmpegPlayer::play() {
     videoPlayer->play();
     int videoCount = 0, audioCount = 0;
     while (playStatus != NULL && playStatus->getPlayStatus()) {
-//        if (audioPlayer->audioPktQueue->getQueueSize() > 50) {
-//            av_usleep(1000 * 100);
-//            continue;
-//        }
+        if (audioPlayer->audioPktQueue->getQueueSize() > 50) {
+            av_usleep(1000 * 100);
+            continue;
+        }
         AVPacket *avPacket = av_packet_alloc();
         if (av_read_frame(pFormatCtx, avPacket) == 0) {
             //解码视频流
@@ -121,7 +121,7 @@ void FfmpegPlayer::play() {
             av_packet_free(&avPacket);
             av_free(avPacket);
             while (playStatus != NULL && playStatus->getPlayStatus()) {
-                if (videoPlayer->videoPktQueue->getQueueSize() > 0) {
+                if (audioPlayer->audioPktQueue->getQueueSize() > 0) {
                     av_usleep(1000 * 100);
                     continue;
                 } else {

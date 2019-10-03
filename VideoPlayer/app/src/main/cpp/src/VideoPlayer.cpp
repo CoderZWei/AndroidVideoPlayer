@@ -19,7 +19,6 @@ VideoPlayer::~VideoPlayer() {
 
 }
 void *playVideo(void* data){
-
     VideoPlayer *videoPlayer= static_cast<VideoPlayer*>(data);
     while (videoPlayer->playStatus!=NULL && videoPlayer->playStatus->getPlayStatus()){
         if(videoPlayer->videoPktQueue->getQueueSize()==0){//正在加载
@@ -54,6 +53,9 @@ void *playVideo(void* data){
         }
         //视频帧格式为yuv420p，则无需转换
         if(avFrame->format==AV_PIX_FMT_YUV420P){
+            ALOGD("zw_debug:is yuv");
+            double diff=videoPlayer->getFrameDiffTime(avFrame,NULL);
+            av_usleep(videoPlayer->getDelayTime(diff) * 1000000);
             videoPlayer->callBack->onCallRenderYUV(
                     CHILD_THREAD,
                     videoPlayer->avCodecCtx->width,
@@ -63,6 +65,7 @@ void *playVideo(void* data){
                     avFrame->data[2]
                     );
         } else{
+            ALOGD("zw_debug:not yuv");
             AVFrame *pFrameYUV420P=av_frame_alloc();
             int num=av_image_get_buffer_size(AV_PIX_FMT_YUV420P,
                     videoPlayer->avCodecCtx->width,
@@ -144,6 +147,57 @@ void VideoPlayer::resume() {
 
 void VideoPlayer::release() {
 
+}
+
+double VideoPlayer::getFrameDiffTime(AVFrame *avFrame, AVPacket *avPacket) {
+    double pts=0;
+    if(avFrame!=NULL){
+        pts=av_frame_get_best_effort_timestamp(avFrame);
+    }
+    if(avPacket!=NULL){
+        pts=avPacket->pts;
+    }
+    if(pts==AV_NOPTS_VALUE){
+        pts=0;
+    }
+    pts*=av_q2d(timeBase);
+    if(pts>0){
+        clock=pts;
+    }
+    double diff=audioPlayer->clock-clock;
+    return diff;
+}
+
+double VideoPlayer::getDelayTime(double diff) {
+    if(diff>0.003){//音频快于视频
+        delayTime=delayTime*2/3;
+        if(delayTime<defaultDelayTime/2){
+            delayTime=defaultDelayTime*2/3;
+        }else if(delayTime>defaultDelayTime*2){
+            delayTime=defaultDelayTime*2;
+        }
+    }else if(diff<-0.003){//视频快于音频
+        delayTime=delayTime*3/2;
+        if(delayTime<defaultDelayTime/2){
+            delayTime=defaultDelayTime*2/3;
+        }else if(delayTime>defaultDelayTime*2){
+            delayTime=defaultDelayTime*2;
+        }
+    }
+    if(diff >= 0.5)
+    {
+        delayTime = 0;
+    }
+    else if(diff <= -0.5)
+    {
+        delayTime = defaultDelayTime * 2;
+    }
+
+    if(fabs(diff) >= 10)
+    {
+        delayTime = defaultDelayTime;
+    }
+    return delayTime;
 }
 
 

@@ -24,6 +24,8 @@ public:
     void pause();
     void resume();
     void release();
+    double getFrameDiffTime(AVFrame *avFrame,AVPacket *avPacket);
+    double getDelayTime(double diff);
 
     int streamIndex=-1;
     AVCodecContext *avCodecCtx=NULL;
@@ -32,6 +34,9 @@ public:
     pthread_mutex_t codecMutex;
     AudioPlayer *audioPlayer=NULL;
     AVRational timeBase;
+    double clock=0;
+    double delayTime=0;
+    double defaultDelayTime=0.04;
 
     PlayStatus *playStatus=NULL;
     CallBack *callBack=NULL;
