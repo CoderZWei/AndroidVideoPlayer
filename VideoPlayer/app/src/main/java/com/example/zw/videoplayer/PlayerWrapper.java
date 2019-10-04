@@ -2,7 +2,9 @@ package com.example.zw.videoplayer;
 
 import android.util.Log;
 
+import com.example.zw.videoplayer.listener.OnTimeUpdateListener;
 import com.example.zw.videoplayer.opengl.MyGLSurfaceView;
+import com.example.zw.videoplayer.util.TimeInfoBean;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -18,6 +20,9 @@ public class PlayerWrapper {
     private static PlayerWrapper mPlayerWrapper;
     private MyGLSurfaceView mGLSurfaceView;
     private ThreadPoolExecutor mThreadPoolExecutor;
+    private OnTimeUpdateListener mOnTimeUpdateListener;
+    private TimeInfoBean mTimeInfoBean;
+
     public static PlayerWrapper getInstance(){
         if(mPlayerWrapper==null){
             synchronized (PlayerWrapper.class){
@@ -66,20 +71,48 @@ public class PlayerWrapper {
         });
     }
 
+    public void seek(final int timeSec){
+        mThreadPoolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                nativeSeek(timeSec);
+            }
+        });
+    }
+
     public void setGLSurfaceView(MyGLSurfaceView glSurfaceView){
         this.mGLSurfaceView=glSurfaceView;
     }
 
     public void onCallRenderYUV(int width,int height,byte[]y,byte[]u,byte[]v){
-        Log.d("zw_debug","获取到yuv");
+        //Log.d("zw_debug","获取到yuv");
         if(mGLSurfaceView!=null){
             mGLSurfaceView.setYUVData(width,height,y,u,v);
         }
+    }
+
+    public void setOnTimeUpdateListener(OnTimeUpdateListener onTimeUpdateListener) {
+        this.mOnTimeUpdateListener = onTimeUpdateListener;
+    }
+
+    public void onCallTimeUpdate(int currentTime, int totalTime){
+        if(this.mOnTimeUpdateListener!=null){
+            if(mTimeInfoBean==null){
+                mTimeInfoBean=new TimeInfoBean();
+            }
+            mTimeInfoBean.setCurrentTime(currentTime);
+            mTimeInfoBean.setTotalTime(totalTime);
+            mOnTimeUpdateListener.onTimeUpdate(mTimeInfoBean);
+        }
+    }
+
+    public int getDurationTime(){
+        return mTimeInfoBean.getTotalTime();
     }
 
     private native void nativeInitPlayer(String path);
     private native void nativePlay();
     private native void nativePause();
     private native void nativeResume();
-
+    private native void nativeSeek(int timeSec);
 }

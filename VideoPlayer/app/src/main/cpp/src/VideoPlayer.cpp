@@ -25,6 +25,10 @@ void *playVideo(void* data){
             av_usleep(1000*100);
             continue;
         }
+        if(videoPlayer->playStatus->getSeekStatus()){//暂停状态
+            av_usleep(1000*100);
+            continue;
+        }
         if(videoPlayer->videoPktQueue->getQueueSize()==0){//正在加载
             av_usleep(1000*100);
             continue;
@@ -57,7 +61,7 @@ void *playVideo(void* data){
         }
         //视频帧格式为yuv420p，则无需转换
         if(avFrame->format==AV_PIX_FMT_YUV420P){
-            ALOGD("zw_debug:is yuv");
+            //ALOGD("zw_debug:is yuv");
             double diff=videoPlayer->getFrameDiffTime(avFrame,NULL);
             av_usleep(videoPlayer->getDelayTime(diff) * 1000000);
             videoPlayer->callBack->onCallRenderYUV(
@@ -69,7 +73,7 @@ void *playVideo(void* data){
                     avFrame->data[2]
                     );
         } else{
-            ALOGD("zw_debug:not yuv");
+            //ALOGD("zw_debug:not yuv");
             AVFrame *pFrameYUV420P=av_frame_alloc();
             int num=av_image_get_buffer_size(AV_PIX_FMT_YUV420P,
                     videoPlayer->avCodecCtx->width,

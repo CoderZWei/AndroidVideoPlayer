@@ -1,9 +1,11 @@
 package com.example.zw.videoplayer;
 
+import com.example.zw.videoplayer.listener.OnTimeUpdateListener;
 import com.example.zw.videoplayer.opengl.MyGLSurfaceView;
 
 public class MediaPlayer {
     private PlayerWrapper mPlayerWrapper;
+    private OnTimeUpdateListener mOnTimeUpdateListener;
 
     public void initPlayer(String path){
         mPlayerWrapper=PlayerWrapper.getInstance();
@@ -31,5 +33,24 @@ public class MediaPlayer {
         if(mPlayerWrapper!=null){
             mPlayerWrapper.resume();
         }
+    }
+
+    public void seekPlay(int timeSec){
+        if(mPlayerWrapper!=null){
+            mPlayerWrapper.seek(timeSec);
+        }
+    }
+
+    public void setOnTimeUpdateListener(OnTimeUpdateListener onTimeUpdateListener) {
+        if(mPlayerWrapper!=null){
+            mPlayerWrapper.setOnTimeUpdateListener(onTimeUpdateListener);
+        }
+    }
+
+    public int getDuration(){
+        if(mPlayerWrapper!=null){
+            return mPlayerWrapper.getDurationTime();
+        }
+        return 0;
     }
 }

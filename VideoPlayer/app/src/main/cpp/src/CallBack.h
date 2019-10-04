@@ -13,13 +13,14 @@ public:
     CallBack(_JavaVM *javaVM, JNIEnv *env, jobject *obj);
     ~CallBack();
     void onCallRenderYUV(int threadType,int width,int height,uint8_t *fy,uint8_t *fu,uint8_t *fv);
+    void onCallTimeUpdate(int threadType,int currentTime,int totalTime);
 
     _JavaVM *javaVM = NULL;
     JNIEnv *jniEnv = NULL;
     jobject jObj;
 
     jmethodID jmid_renderYUV;
-
+    jmethodID jmid_timeUpdate;
 };
 
 #endif //VIDEOPLAYER_CALLBACK_H

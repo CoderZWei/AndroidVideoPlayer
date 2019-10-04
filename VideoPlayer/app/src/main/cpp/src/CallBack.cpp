@@ -18,6 +18,7 @@ CallBack::CallBack(_JavaVM *javaVM1, JNIEnv *env, jobject *obj) {
     }
 
     this->jmid_renderYUV=env->GetMethodID(jlz,"onCallRenderYUV","(II[B[B[B)V");
+    this->jmid_timeUpdate=env->GetMethodID(jlz,"onCallTimeUpdate","(II)V");
     //this->jmid_renderYUV=env->GetMethodID(jlz,"onCallRenderYUV", "()V");
 }
 
@@ -50,6 +51,26 @@ void CallBack::onCallRenderYUV(int threadType,int width, int height, uint8_t *fy
     jniEnvLocal->DeleteLocalRef(y);
     jniEnvLocal->DeleteLocalRef(u);
     jniEnvLocal->DeleteLocalRef(v);
+    if(threadType==CHILD_THREAD){
+        javaVM->DetachCurrentThread();
+    }
+}
+
+void CallBack::onCallTimeUpdate(int threadType, int currentTime, int totalTime) {
+    JNIEnv *jniEnvLocal;
+    //主线程调用
+    if(threadType==MAIN_THREAD){
+        //jniEnv->CallVoidMethod(jObj,jmid_renderYUV,width,height,fy,fu,fv);
+        jniEnvLocal=jniEnv;
+    }
+        //子线程
+    else{
+        if(javaVM->AttachCurrentThread(&jniEnvLocal,0)!=JNI_OK){
+            ALOGD("zw_debug:call onCallRenderYUV worng");
+            return;
+        }
+    }
+    jniEnvLocal->CallVoidMethod(jObj, jmid_timeUpdate,currentTime,totalTime );
     if(threadType==CHILD_THREAD){
         javaVM->DetachCurrentThread();
     }

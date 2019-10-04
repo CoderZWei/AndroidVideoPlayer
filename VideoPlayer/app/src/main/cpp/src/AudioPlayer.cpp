@@ -57,7 +57,7 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
             if (audioPlayer->clock - audioPlayer->lastTime >= 0.1) {
                 audioPlayer->lastTime = audioPlayer->clock;
                 //回调应用层
-                //audioPlayer->callBack->onCallTimeUpdate(CHILD_THREAD,audioPlayer->clock, audioPlayer->duration);
+                audioPlayer->callBack->onCallTimeUpdate(CHILD_THREAD,audioPlayer->clock, audioPlayer->duration);
             }
             //往里填充数据
             (*audioPlayer->pcmBufferQueue)->Enqueue(audioPlayer->pcmBufferQueue,
@@ -129,10 +129,10 @@ void AudioPlayer::initOpenSLES() {
 int AudioPlayer::resampleAudio() {
     dataSize = 0;//要是不赋值0的话音频播放结束也会继续更新时间
     while (playStatus != NULL && playStatus->getPlayStatus()) {
-//        if(playStatus->getSeekStatus()== true){//seek状态
-//            av_usleep(1000*100);
-//            continue;
-//        }
+        if(playStatus->getSeekStatus()== true){//seek状态
+            av_usleep(1000*100);
+            continue;
+        }
         if (audioPktQueue->getQueueSize() == 0) {//加载中
             if (playStatus->getLoadStatus() == false) {
                 playStatus->setLoadStatus(true);
@@ -140,11 +140,6 @@ int AudioPlayer::resampleAudio() {
             }
             av_usleep(1000 * 100);
             continue;
-        } else {
-            if (playStatus->getLoadStatus() == true) {
-                playStatus->setLoadStatus(false);
-                //callBack->onCallLoad(CHILD_THREAD, false);
-            }
         }
         avPacket = av_packet_alloc();
         if (audioPktQueue->getAVPacket(avPacket) != 0) {//获取失败

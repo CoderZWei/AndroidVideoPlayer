@@ -29,7 +29,7 @@ public:
 
     bool playStatus = true;
     bool loadStatus = true;
-    bool seekStatus = true;
+    bool seekStatus = false;
     bool pauseStatus = false;
 
 };

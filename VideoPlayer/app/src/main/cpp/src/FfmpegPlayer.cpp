@@ -14,6 +14,7 @@ FfmpegPlayer::FfmpegPlayer(PlayStatus *pStatus, CallBack *callback) {
     this->callBack=callback;
     this->exit = false;
     pthread_mutex_init(&initMutex, NULL);
+    pthread_mutex_init(&seekMutex, NULL);
 }
 
 FfmpegPlayer::~FfmpegPlayer() {
@@ -96,6 +97,10 @@ void FfmpegPlayer::play() {
     videoPlayer->play();
     int videoCount = 0, audioCount = 0;
     while (playStatus != NULL && playStatus->getPlayStatus()) {
+        if(playStatus->getSeekStatus()){
+            av_usleep(1000*100);
+            continue;
+        }
         if (audioPlayer->audioPktQueue->getQueueSize() > 50) {
             av_usleep(1000 * 100);
             continue;
@@ -125,6 +130,10 @@ void FfmpegPlayer::play() {
                     av_usleep(1000 * 100);
                     continue;
                 } else {
+                    if(playStatus->getSeekStatus()== false){
+                        av_usleep(1000*100);
+                        //playStatus->setPlayStatus(false);
+                    }
                     break;
                 }
             }
@@ -174,6 +183,33 @@ void FfmpegPlayer::resume() {
     if(audioPlayer!=NULL){
         audioPlayer->resume();
     }
+}
+
+void FfmpegPlayer::seek(int64_t timeSec) {
+    if(duration<0 || timeSec>duration){
+        return;
+    }
+    playStatus->setSeekStatus(true);
+    pthread_mutex_lock(&seekMutex);
+    int64_t rel=timeSec*AV_TIME_BASE;
+    avformat_seek_file(pFormatCtx, -1, INT64_MIN, rel, INT64_MAX, 0);
+    if(audioPlayer!=NULL){
+        audioPlayer->audioPktQueue->clearQueue();
+        audioPlayer->clock=0;
+        audioPlayer->lastTime=0;
+        pthread_mutex_lock(&audioPlayer->codecMutex);
+        avcodec_flush_buffers(audioPlayer->avCodecCtx);
+        pthread_mutex_unlock(&audioPlayer->codecMutex);
+    }
+    if(videoPlayer!=NULL){
+        videoPlayer->videoPktQueue->clearQueue();
+        videoPlayer->clock=0;
+        pthread_mutex_lock(&videoPlayer->codecMutex);
+        avcodec_flush_buffers(videoPlayer->avCodecCtx);
+        pthread_mutex_unlock(&videoPlayer->codecMutex);
+    }
+    pthread_mutex_unlock(&seekMutex);
+    playStatus->setSeekStatus(false);
 }
 
 

@@ -8,35 +8,49 @@
 #include "pthread.h"
 #include "VideoPlayer.h"
 #include "AudioPlayer.h"
-extern "C"{
+
+extern "C" {
 #include "libavformat/avformat.h"
 #include <libavutil/time.h>
 };
 
-class FfmpegPlayer{
+class FfmpegPlayer {
 public:
     FfmpegPlayer();
-    FfmpegPlayer(PlayStatus *pStatus,CallBack *callback);
-    ~FfmpegPlayer();
-    void init(const char *url);
-    void startPlay();
-    void play();
-    void pause();
-    void resume();
-    int getCodecContext(AVCodecParameters *codecpar,AVCodecContext **avCodecContext);
 
-    const char *url=NULL;
-    bool exit= false;
-    int duration=0;
-    PlayStatus *playStatus=NULL;
-    CallBack *callBack=NULL;
+    FfmpegPlayer(PlayStatus *pStatus, CallBack *callback);
+
+    ~FfmpegPlayer();
+
+    void init(const char *url);
+
+    void startPlay();
+
+    void play();
+
+    void pause();
+
+    void resume();
+
+    void seek(int64_t timeSec);
+
+    int getCodecContext(AVCodecParameters *codecpar, AVCodecContext **avCodecContext);
+
+
+    const char *url = NULL;
+    bool exit = false;
+    int duration = 0;
+    PlayStatus *playStatus = NULL;
+    CallBack *callBack = NULL;
     pthread_mutex_t initMutex;
-    AVFormatContext *pFormatCtx=NULL;
-    VideoPlayer *videoPlayer=NULL;
-    AudioPlayer *audioPlayer=NULL;
+    pthread_mutex_t seekMutex;
+    AVFormatContext *pFormatCtx = NULL;
+    VideoPlayer *videoPlayer = NULL;
+    AudioPlayer *audioPlayer = NULL;
 
     pthread_t playThread;
 
 
 };
+
 #endif //VIDEOPLAYER_FFMPEGPLAYER_H

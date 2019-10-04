@@ -66,3 +66,12 @@ Java_com_example_zw_videoplayer_PlayerWrapper_nativeResume(JNIEnv *env, jobject 
         ffmpegPlayer->resume();
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_zw_videoplayer_PlayerWrapper_nativeSeek(JNIEnv *env, jobject instance,
+                                                         jint timeSec) {
+    if(ffmpegPlayer!=NULL){
+        ffmpegPlayer->seek(timeSec);
+    }
+}
