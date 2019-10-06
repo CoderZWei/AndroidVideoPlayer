@@ -2,6 +2,8 @@ package com.example.zw.videoplayer;
 
 import android.util.Log;
 
+import com.example.zw.videoplayer.listener.OnCompleteListener;
+import com.example.zw.videoplayer.listener.OnStopListener;
 import com.example.zw.videoplayer.listener.OnTimeUpdateListener;
 import com.example.zw.videoplayer.opengl.MyGLSurfaceView;
 import com.example.zw.videoplayer.util.TimeInfoBean;
@@ -21,6 +23,8 @@ public class PlayerWrapper {
     private MyGLSurfaceView mGLSurfaceView;
     private ThreadPoolExecutor mThreadPoolExecutor;
     private OnTimeUpdateListener mOnTimeUpdateListener;
+    private OnCompleteListener mOnCompleteListener;
+    private OnStopListener mOnStopListener;
     private TimeInfoBean mTimeInfoBean;
 
     public static PlayerWrapper getInstance(){
@@ -35,7 +39,9 @@ public class PlayerWrapper {
     }
 
     public void init(final String path) {
-        mThreadPoolExecutor=new ThreadPoolExecutor(3,3,2,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>(10));
+        if(mThreadPoolExecutor==null){
+            mThreadPoolExecutor=new ThreadPoolExecutor(5,5,2,TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>(10));
+        }
         mThreadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -80,6 +86,18 @@ public class PlayerWrapper {
         });
     }
 
+    public void stop(){
+//        mThreadPoolExecutor.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                nativeStop();
+//            }
+//        });
+        mTimeInfoBean=null;
+
+        nativeStop();
+    }
+
     public void setGLSurfaceView(MyGLSurfaceView glSurfaceView){
         this.mGLSurfaceView=glSurfaceView;
     }
@@ -115,4 +133,25 @@ public class PlayerWrapper {
     private native void nativePause();
     private native void nativeResume();
     private native void nativeSeek(int timeSec);
+    private native void nativeStop();
+
+    public void setOnCompleteListener(OnCompleteListener onCompleteListener) {
+        this.mOnCompleteListener = onCompleteListener;
+    }
+
+    public void onCallComplete(){
+        if(mOnCompleteListener!=null){
+            mOnCompleteListener.onComplete();
+        }
+    }
+
+    public void setOnStopListener(OnStopListener onStopListener) {
+        this.mOnStopListener = onStopListener;
+    }
+
+    public void onCallStop(){
+        if(mOnStopListener!=null){
+            mOnStopListener.onStop();
+        }
+    }
 }

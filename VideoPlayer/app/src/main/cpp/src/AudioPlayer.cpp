@@ -15,12 +15,13 @@ AudioPlayer::AudioPlayer(PlayStatus *pStatus, CallBack *callback, int spRate) {
 
 
 AudioPlayer::~AudioPlayer() {
-
+    pthread_mutex_destroy(&codecMutex);
 }
 
 void *playAudio(void *data) {
     AudioPlayer *audioPlayer = (AudioPlayer *) data;
     audioPlayer->initOpenSLES();
+    //pthread_exit(&audioPlayer->threadPlay);
     return 0;
 }
 
@@ -44,6 +45,56 @@ void AudioPlayer::resume() {
 }
 
 void AudioPlayer::release() {
+    if(audioPktQueue!=NULL){
+        audioPktQueue->noticeQueue();
+    }
+    pthread_join(threadPlay,NULL);
+    if(audioPktQueue!=NULL){
+        delete(audioPktQueue);
+        audioPktQueue=NULL;
+    }
+    if(pcmPlayerObject != NULL)
+    {
+        (*pcmPlayerObject)->Destroy(pcmPlayerObject);
+        pcmPlayerObject = NULL;
+        pcmPlayerPlay = NULL;
+        pcmBufferQueue = NULL;
+    }
+
+    if(outputMixObject != NULL)
+    {
+        (*outputMixObject)->Destroy(outputMixObject);
+        outputMixObject = NULL;
+        outputMixEnvironmentalReverb = NULL;
+    }
+
+    if(engineObject != NULL)
+    {
+        (*engineObject)->Destroy(engineObject);
+        engineObject = NULL;
+        engineEngine = NULL;
+    }
+
+    if(buffer != NULL)
+    {
+        free(buffer);
+        buffer = NULL;
+    }
+    if(avCodecCtx!=NULL){
+        //pthread_mutex_lock(&codecMutex);
+        avcodec_close(avCodecCtx);
+        avcodec_free_context(&avCodecCtx);
+        avCodecCtx = NULL;
+        //pthread_mutex_unlock(&codecMutex);
+    }
+    if(playStatus != NULL)
+    {
+        playStatus = NULL;
+    }
+    if(callBack != NULL)
+    {
+        callBack = NULL;
+    }
 
 }
 

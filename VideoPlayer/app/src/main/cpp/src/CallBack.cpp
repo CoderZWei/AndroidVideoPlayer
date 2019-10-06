@@ -19,7 +19,8 @@ CallBack::CallBack(_JavaVM *javaVM1, JNIEnv *env, jobject *obj) {
 
     this->jmid_renderYUV=env->GetMethodID(jlz,"onCallRenderYUV","(II[B[B[B)V");
     this->jmid_timeUpdate=env->GetMethodID(jlz,"onCallTimeUpdate","(II)V");
-    //this->jmid_renderYUV=env->GetMethodID(jlz,"onCallRenderYUV", "()V");
+    this->jmid_complete= env->GetMethodID(jlz, "onCallComplete", "()V");
+    this->jmid_stop= env->GetMethodID(jlz, "onCallStop", "()V");
 }
 
 CallBack::~CallBack() {
@@ -60,17 +61,54 @@ void CallBack::onCallTimeUpdate(int threadType, int currentTime, int totalTime) 
     JNIEnv *jniEnvLocal;
     //主线程调用
     if(threadType==MAIN_THREAD){
-        //jniEnv->CallVoidMethod(jObj,jmid_renderYUV,width,height,fy,fu,fv);
         jniEnvLocal=jniEnv;
     }
         //子线程
     else{
         if(javaVM->AttachCurrentThread(&jniEnvLocal,0)!=JNI_OK){
-            ALOGD("zw_debug:call onCallRenderYUV worng");
+            ALOGD("zw_debug:call onCallTimeUpdate worng");
             return;
         }
     }
     jniEnvLocal->CallVoidMethod(jObj, jmid_timeUpdate,currentTime,totalTime );
+    if(threadType==CHILD_THREAD){
+        javaVM->DetachCurrentThread();
+    }
+}
+
+void CallBack::onCallComplete(int threadType) {
+    JNIEnv *jniEnvLocal;
+    //主线程调用
+    if(threadType==MAIN_THREAD){
+        jniEnvLocal=jniEnv;
+    }
+        //子线程
+    else{
+        if(javaVM->AttachCurrentThread(&jniEnvLocal,0)!=JNI_OK){
+            ALOGD("zw_debug:call onCallComplete worng");
+            return;
+        }
+    }
+    jniEnvLocal->CallVoidMethod(jObj, jmid_complete );
+    if(threadType==CHILD_THREAD){
+        javaVM->DetachCurrentThread();
+    }
+}
+
+void CallBack::onCallStop(int threadType) {
+    JNIEnv *jniEnvLocal;
+    //主线程调用
+    if(threadType==MAIN_THREAD){
+        jniEnvLocal=jniEnv;
+    }
+        //子线程
+    else{
+        if(javaVM->AttachCurrentThread(&jniEnvLocal,0)!=JNI_OK){
+            ALOGD("zw_debug:call onCallStop worng");
+            return;
+        }
+    }
+    jniEnvLocal->CallVoidMethod(jObj, jmid_stop );
     if(threadType==CHILD_THREAD){
         javaVM->DetachCurrentThread();
     }

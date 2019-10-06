@@ -13,7 +13,9 @@ PacketQueue::PacketQueue(PlayStatus *playStatus) : playStatus(playStatus) {
 }
 
 PacketQueue::~PacketQueue() {
-
+    clearQueue();
+    pthread_mutex_destroy(&packetMutex);
+    pthread_cond_destroy(&packetCond);
 }
 
 void PacketQueue::putAVPacket(AVPacket *packet) {
@@ -25,7 +27,7 @@ void PacketQueue::putAVPacket(AVPacket *packet) {
 
 int PacketQueue::getAVPacket(AVPacket *packet) {
     pthread_mutex_lock(&packetMutex);
-    while (playStatus != NULL && playStatus->getPlayStatus() != false) {
+    while (playStatus != NULL && playStatus->getPlayStatus()) {
         if (pktQueue.size() > 0) {
             AVPacket *avPacket = pktQueue.front();
             //产生一个新的引用，第一个参数是dst,第二个参数是src,返回0表示成功

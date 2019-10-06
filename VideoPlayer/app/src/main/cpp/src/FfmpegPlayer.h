@@ -34,6 +34,8 @@ public:
 
     void seek(int64_t timeSec);
 
+    void release();
+
     int getCodecContext(AVCodecParameters *codecpar, AVCodecContext **avCodecContext);
 
 

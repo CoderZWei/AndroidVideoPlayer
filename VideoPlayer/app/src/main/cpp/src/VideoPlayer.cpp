@@ -16,7 +16,7 @@ VideoPlayer::VideoPlayer(PlayStatus *pStatus,CallBack *callback) {
 
 
 VideoPlayer::~VideoPlayer() {
-
+    pthread_mutex_destroy(&codecMutex);
 }
 void *playVideo(void* data){
     VideoPlayer *videoPlayer= static_cast<VideoPlayer*>(data);
@@ -130,6 +130,7 @@ void *playVideo(void* data){
             av_free(buffer);
             sws_freeContext(sws_ctx);
         }
+        av_frame_free(&avFrame);
         av_free(avFrame);
         avFrame = NULL;
         av_packet_free(&avPacket);
@@ -137,6 +138,7 @@ void *playVideo(void* data){
         avPacket = NULL;
         pthread_mutex_unlock(&videoPlayer->codecMutex);
     }
+  // pthread_exit(&videoPlayer->threadPlay);
     return 0;
 }
 void VideoPlayer::play() {
@@ -154,7 +156,31 @@ void VideoPlayer::resume() {
 }
 
 void VideoPlayer::release() {
+    if(videoPktQueue!=NULL){
+        videoPktQueue->noticeQueue();
+    }
+    pthread_join(threadPlay,NULL);
+    if(videoPktQueue!=NULL){
+        delete(videoPktQueue);
+        videoPktQueue=NULL;
+    }
+    if(avCodecCtx != NULL)
+    {
+        pthread_mutex_lock(&codecMutex);
+        avcodec_close(avCodecCtx);
+        avcodec_free_context(&avCodecCtx);
+        avCodecCtx = NULL;
+        pthread_mutex_unlock(&codecMutex);
+    }
 
+    if(playStatus != NULL)
+    {
+        playStatus = NULL;
+    }
+    if(callBack != NULL)
+    {
+        callBack = NULL;
+    }
 }
 
 double VideoPlayer::getFrameDiffTime(AVFrame *avFrame, AVPacket *avPacket) {

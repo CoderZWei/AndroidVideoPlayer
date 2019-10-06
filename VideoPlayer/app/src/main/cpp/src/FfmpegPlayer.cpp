@@ -13,12 +13,14 @@ FfmpegPlayer::FfmpegPlayer(PlayStatus *pStatus, CallBack *callback) {
     this->playStatus = pStatus;
     this->callBack=callback;
     this->exit = false;
+
     pthread_mutex_init(&initMutex, NULL);
     pthread_mutex_init(&seekMutex, NULL);
 }
 
 FfmpegPlayer::~FfmpegPlayer() {
     pthread_mutex_destroy(&initMutex);
+    pthread_mutex_destroy(&seekMutex);
 }
 
 
@@ -92,8 +94,8 @@ void FfmpegPlayer::startPlay() {
 }
 
 void FfmpegPlayer::play() {
-    audioPlayer->play();
     videoPlayer->audioPlayer = audioPlayer;
+    audioPlayer->play();
     videoPlayer->play();
     int videoCount = 0, audioCount = 0;
     while (playStatus != NULL && playStatus->getPlayStatus()) {
@@ -130,14 +132,20 @@ void FfmpegPlayer::play() {
                     av_usleep(1000 * 100);
                     continue;
                 } else {
-                    if(playStatus->getSeekStatus()== false){
-                        av_usleep(1000*100);
-                        //playStatus->setPlayStatus(false);
-                    }
-                    break;
+                        if(playStatus->getSeekStatus()== false){
+                            av_usleep(1000*100);
+                            playStatus->setPlayStatus(false);
+                            //playStatus->setPlayStatus(false);
+                        }
+                        break;
                 }
             }
+            break;
         }
+    }
+    if(callBack!=NULL){
+
+        callBack->onCallComplete(CHILD_THREAD);
     }
     exit = true;
     ALOGD("ze_debug:解码完成");
@@ -210,6 +218,35 @@ void FfmpegPlayer::seek(int64_t timeSec) {
     }
     pthread_mutex_unlock(&seekMutex);
     playStatus->setSeekStatus(false);
+}
+
+void FfmpegPlayer::release() {
+    playStatus->setPlayStatus(false);
+    pthread_join(playThread,NULL);
+    pthread_mutex_lock(&initMutex);
+    if(audioPlayer!=NULL){
+        audioPlayer->release();
+        delete(audioPlayer);
+        audioPlayer=NULL;
+    }
+    if(videoPlayer!=NULL){
+        videoPlayer->release();
+        delete(videoPlayer);
+        videoPlayer=NULL;
+    }
+    if(pFormatCtx!=NULL){
+        avformat_close_input(&pFormatCtx);
+        avformat_free_context(pFormatCtx);
+        pFormatCtx=NULL;
+    }
+    if(callBack!=NULL){
+        callBack=NULL;
+    }
+    if(playStatus!=NULL){
+        playStatus=NULL;
+    }
+    pthread_mutex_unlock(&initMutex);
+
 }
 
 

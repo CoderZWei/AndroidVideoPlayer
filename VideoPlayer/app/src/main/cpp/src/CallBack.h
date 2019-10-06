@@ -14,6 +14,8 @@ public:
     ~CallBack();
     void onCallRenderYUV(int threadType,int width,int height,uint8_t *fy,uint8_t *fu,uint8_t *fv);
     void onCallTimeUpdate(int threadType,int currentTime,int totalTime);
+    void onCallComplete(int threadType);
+    void onCallStop(int threadType);
 
     _JavaVM *javaVM = NULL;
     JNIEnv *jniEnv = NULL;
@@ -21,6 +23,8 @@ public:
 
     jmethodID jmid_renderYUV;
     jmethodID jmid_timeUpdate;
+    jmethodID jmid_complete;
+    jmethodID jmid_stop;
 };
 
 #endif //VIDEOPLAYER_CALLBACK_H

@@ -1,15 +1,24 @@
 package com.example.zw.videoplayer;
 
+import com.example.zw.videoplayer.listener.OnCompleteListener;
+import com.example.zw.videoplayer.listener.OnStopListener;
 import com.example.zw.videoplayer.listener.OnTimeUpdateListener;
 import com.example.zw.videoplayer.opengl.MyGLSurfaceView;
 
 public class MediaPlayer {
     private PlayerWrapper mPlayerWrapper;
-    private OnTimeUpdateListener mOnTimeUpdateListener;
+
+    public void initWrapper(){
+        if(mPlayerWrapper==null){
+            mPlayerWrapper=PlayerWrapper.getInstance();
+        }
+    }
 
     public void initPlayer(String path){
-        mPlayerWrapper=PlayerWrapper.getInstance();
-        mPlayerWrapper.init(path);
+        //mPlayerWrapper=PlayerWrapper.getInstance();
+        if(mPlayerWrapper!=null){
+            mPlayerWrapper.init(path);
+        }
     }
 
     public void setGLSurfaceView(MyGLSurfaceView glSurfaceView){
@@ -41,6 +50,12 @@ public class MediaPlayer {
         }
     }
 
+    public void stopPlay(){
+        if(mPlayerWrapper!=null){
+            mPlayerWrapper.stop();
+        }
+    }
+
     public void setOnTimeUpdateListener(OnTimeUpdateListener onTimeUpdateListener) {
         if(mPlayerWrapper!=null){
             mPlayerWrapper.setOnTimeUpdateListener(onTimeUpdateListener);
@@ -53,4 +68,17 @@ public class MediaPlayer {
         }
         return 0;
     }
+
+    public void setOnCompleteListener(OnCompleteListener onCompleteListener){
+        if(mPlayerWrapper!=null){
+            mPlayerWrapper.setOnCompleteListener(onCompleteListener);
+        }
+    }
+
+    public void setOnStopListener(OnStopListener onStopListener){
+        if(mPlayerWrapper!=null){
+            mPlayerWrapper.setOnStopListener(onStopListener);
+        }
+    }
+
 }
